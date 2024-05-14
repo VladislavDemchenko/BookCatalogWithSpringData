@@ -21,8 +21,8 @@ public interface CatalogRepository extends JpaRepository<Catalog, Long> {
     @Query("UPDATE Catalog c SET c.catalogName = :catalogName WHERE c.id = :id")
     void updateCatalogName(@Param("id") Long id, @Param("catalogName") String catalogName);
 
-    @Query("select count(c) from Catalog c where c.catalogName = :catalogName")
-    int searchByCatalogName(@Param("catalogName")String catalogName);
+//    @Query("select count(c) from Catalog c where c.catalogName = :catalogName")
+//    int searchByCatalogName(@Param("catalogName")String catalogName);
 
 
 }

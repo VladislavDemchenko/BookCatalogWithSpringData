@@ -2,6 +2,7 @@ package org.bookcatalog.bookcatalog.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.bookcatalog.bookcatalog.dto.BookDto;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ public class Book {
     private String name;
 
     private String body;
+
     @Temporal(TemporalType.DATE)
     private Date creationDate;
 
@@ -41,5 +43,10 @@ public class Book {
     @PreUpdate
     protected void onCreate() {
         creationDate = new Date();
+    }
+
+    public Book(BookDto bookDto) {
+        this.name = bookDto.name();
+        this.body = bookDto.body();
     }
 }
