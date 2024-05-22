@@ -7,6 +7,7 @@ import org.bookcatalog.bookcatalog.entity.Catalog;
 import org.bookcatalog.bookcatalog.exceptions.InvalidRequestException;
 import org.bookcatalog.bookcatalog.exceptions.NotFoundContentException;
 import org.bookcatalog.bookcatalog.repository.BookRepository;
+import org.bookcatalog.bookcatalog.repository.CatalogRepository;
 import org.bookcatalog.bookcatalog.service.BookService;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
@@ -19,13 +20,23 @@ public class BookServiceImpl implements BookService {
 
 
     private final BookRepository bookRepository;
+    private final CatalogRepository catalogRepository;
 
     @Override
     public String save(BookDto bookDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            throw new InvalidRequestException(bindingResult.getGlobalErrors().toString());
+            throw new InvalidRequestException(bindingResult.getFieldError().getDefaultMessage());
         }
-        return bookRepository.save(new Book(bookDto)).toString();
+
+        Catalog catalog = catalogRepository.findById(bookDto.catalogId())
+                .orElseThrow(() -> new NotFoundContentException("Catalog not found with id: " + bookDto.catalogId()));
+
+        Book book = new Book();
+        book.setName(bookDto.name());
+        book.setBody(bookDto.body());
+        book.setCatalog(catalog);
+
+        return bookRepository.save(book).toString();
     }
 
     @Override
@@ -37,7 +48,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public String findByBookName(String bookName) {
+    public String findByName(String bookName) {
         return bookRepository.findByName(bookName)
                 .orElseThrow(()-> new NotFoundContentException("Not found book by name <" + bookName + ">"))
                 .toString();
@@ -54,27 +65,31 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public String updateBookName(Long id, String bookName) {
-        bookRepository.findById(id).ifPresentOrElse(
-                catalog -> {
-                    if (bookRepository.findByName(bookName).isEmpty()) {
-                        catalog.setName(bookName);
-                        bookRepository.save(catalog);
-                    }else {
-                        throw new InvalidRequestException("This name already exist");
-                    }
-                },
-                () -> { throw new NotFoundContentException("Catalog with id - "+ id + " haven't been created"); }
-        );
+
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new NotFoundContentException("Book with id " + id + " hasn't been created"));
+
+        if (bookName.isEmpty()) {
+            throw new InvalidRequestException("New name of book can't be empty");
+        }
+
+        if (bookRepository.findByName(bookName).isPresent()) {
+            throw new InvalidRequestException("This name already exists");
+        }
+
+        book.setName(bookName);
+        bookRepository.save(book);
+
         return "Updated";
     }
 
     @Override
-    public String updateBookBody(Long id, String descriptionName) {
+    public String updateBookBody(Long id, String body) {
         bookRepository.findById(id).ifPresentOrElse(book -> {
-            book.setName(descriptionName);
+            book.setBody(body);
             bookRepository.save(book);
         },
-        () -> { throw new InvalidRequestException("This name already exist"); });
+        () -> { throw new NotFoundContentException("Book with id " + id + " hasn't been created"); });
         return "Updated";
     }
 }

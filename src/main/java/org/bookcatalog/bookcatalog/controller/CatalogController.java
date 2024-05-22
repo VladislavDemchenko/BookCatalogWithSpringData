@@ -31,7 +31,7 @@ public class CatalogController {
 
     @GetMapping("/findByName")
     public ResponseEntity<?> findByName(@RequestParam String catalogName){
-        return new ResponseEntity<>(catalogServiceImpl.findByCatalogName(catalogName), HttpStatus.OK);
+        return new ResponseEntity<>(catalogServiceImpl.findByName(catalogName), HttpStatus.OK);
     }
 
     @GetMapping("/findAll")

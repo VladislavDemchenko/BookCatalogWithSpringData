@@ -4,17 +4,17 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.bookcatalog.bookcatalog.dto.BookDto;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 
 @Entity
 @Table(name = "books")
 @Setter
 @Getter
-@ToString
+@ToString(exclude = "catalog")
 @NoArgsConstructor
 @EqualsAndHashCode
 public class Book {
@@ -45,8 +45,9 @@ public class Book {
         creationDate = new Date();
     }
 
-    public Book(BookDto bookDto) {
+    public Book(BookDto bookDto, Catalog catalog) {
         this.name = bookDto.name();
         this.body = bookDto.body();
+        this.catalog = catalog;
     }
 }

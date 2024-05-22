@@ -32,7 +32,7 @@ public class BookController {
 
     @GetMapping("/findByName")
     public ResponseEntity<?> findById(@RequestParam String bookName){
-        return new ResponseEntity<>(bookService.findByBookName(bookName), HttpStatus.OK);
+        return new ResponseEntity<>(bookService.findByName(bookName), HttpStatus.OK);
     }
 
 

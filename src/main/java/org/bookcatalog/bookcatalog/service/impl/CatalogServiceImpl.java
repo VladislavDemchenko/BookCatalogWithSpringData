@@ -33,7 +33,7 @@ public class CatalogServiceImpl implements CatalogService {
         return "Catalog with id - " + id + " safely removed";
     }
     @Override
-    public String findByCatalogName(String catalogName) {
+    public String findByName(String catalogName) {
         return catalogRepository.findByCatalogName(catalogName)
                 .orElseThrow(()-> new NotFoundContentException("Not found catalog by name <" + catalogName + ">"))
                 .toString();
@@ -48,17 +48,21 @@ public class CatalogServiceImpl implements CatalogService {
     }
     @Override
     public String updateCatalogName(Long id, String catalogName) {
-        catalogRepository.findById(id).ifPresentOrElse(
-                catalog -> {
-                    if (catalogRepository.findByCatalogName(catalogName).isEmpty()) {
-                        catalog.setCatalogName(catalogName);
-                        catalogRepository.save(catalog);
-                    }else {
-                        throw new InvalidRequestException("This name already exist");
-                    }
-                },
-                () -> { throw new NotFoundContentException("Book with id - "+ id + " haven't been created"); }
-        );
+
+        Catalog catalog = catalogRepository.findById(id)
+                .orElseThrow(() -> new NotFoundContentException("Catalog with id " + id + " hasn't been created"));
+
+        if (catalogName.isEmpty()) {
+            throw new InvalidRequestException("New name of catalog can't be empty");
+        }
+
+        if (catalogRepository.findByCatalogName(catalogName).isPresent()) {
+            throw new InvalidRequestException("This name already exists");
+        }
+
+        catalog.setCatalogName(catalogName);
+        catalogRepository.save(catalog);
+
         return "Updated";
     }
     @Override
