@@ -7,10 +7,12 @@ import org.bookcatalog.bookcatalog.exceptions.InvalidRequestException;
 import org.bookcatalog.bookcatalog.exceptions.NotFoundContentException;
 import org.bookcatalog.bookcatalog.repository.CatalogRepository;
 import org.bookcatalog.bookcatalog.service.CatalogService;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -21,9 +23,9 @@ public class CatalogServiceImpl implements CatalogService {
     @Override
     public String save(CatalogDto catalogDto, BindingResult bindingResult){
         if (bindingResult.hasErrors()) {
-            throw new InvalidRequestException(bindingResult.getGlobalErrors().toString());
+            throw new InvalidRequestException(bindingResult.getAllErrors().toString());
         }
-        return catalogRepository.save(new Catalog(catalogDto)).toString();
+        return saveCatalogWithCatchUniqueException(new Catalog(catalogDto)).toString();
     }
     @Override
     public String delete(Long id){
@@ -56,15 +58,10 @@ public class CatalogServiceImpl implements CatalogService {
             throw new InvalidRequestException("New name of catalog can't be empty");
         }
 
-        if (catalogRepository.findByCatalogName(catalogName).isPresent()) {
-            throw new InvalidRequestException("This name already exists");
-        }
-
         catalog.setCatalogName(catalogName);
-        catalogRepository.save(catalog);
-
-        return "Updated";
+        return saveCatalogWithCatchUniqueException(catalog).toString();
     }
+
     @Override
     public String updateCatalogDescription(Long id, String descriptionName) {
         catalogRepository.findById(id).ifPresentOrElse(catalog -> {
@@ -73,5 +70,13 @@ public class CatalogServiceImpl implements CatalogService {
         },
         () -> { throw new NotFoundContentException("Not found catalog with id - " + id); });
         return "Updated";
+    }
+
+    private Catalog saveCatalogWithCatchUniqueException(Catalog catalog) {
+        try {
+            return catalogRepository.save(catalog);
+        }catch(DataIntegrityViolationException e){
+            throw new InvalidRequestException("A catalog with this name already exist");
+        }
     }
 }

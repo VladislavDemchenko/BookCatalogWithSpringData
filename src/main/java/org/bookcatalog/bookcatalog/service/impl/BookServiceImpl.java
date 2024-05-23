@@ -9,6 +9,7 @@ import org.bookcatalog.bookcatalog.exceptions.NotFoundContentException;
 import org.bookcatalog.bookcatalog.repository.BookRepository;
 import org.bookcatalog.bookcatalog.repository.CatalogRepository;
 import org.bookcatalog.bookcatalog.service.BookService;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 
@@ -25,7 +26,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public String save(BookDto bookDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            throw new InvalidRequestException(bindingResult.getFieldError().getDefaultMessage());
+            throw new InvalidRequestException(bindingResult.getAllErrors().toString());
         }
 
         Catalog catalog = catalogRepository.findById(bookDto.catalogId())
@@ -36,7 +37,7 @@ public class BookServiceImpl implements BookService {
         book.setBody(bookDto.body());
         book.setCatalog(catalog);
 
-        return bookRepository.save(book).toString();
+        return saveBookWithCatchUniqueException(book).toString();
     }
 
     @Override
@@ -73,14 +74,8 @@ public class BookServiceImpl implements BookService {
             throw new InvalidRequestException("New name of book can't be empty");
         }
 
-        if (bookRepository.findByName(bookName).isPresent()) {
-            throw new InvalidRequestException("This name already exists");
-        }
-
         book.setName(bookName);
-        bookRepository.save(book);
-
-        return "Updated";
+        return saveBookWithCatchUniqueException(book).toString();
     }
 
     @Override
@@ -91,5 +86,13 @@ public class BookServiceImpl implements BookService {
         },
         () -> { throw new NotFoundContentException("Book with id " + id + " hasn't been created"); });
         return "Updated";
+    }
+
+    private Book saveBookWithCatchUniqueException(Book book) {
+        try {
+            return bookRepository.save(book);
+        }catch(DataIntegrityViolationException e){
+            throw new InvalidRequestException("A book with this name already exist");
+        }
     }
 }
