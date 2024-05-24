@@ -32,12 +32,7 @@ public class BookServiceImpl implements BookService {
         Catalog catalog = catalogRepository.findById(bookDto.catalogId())
                 .orElseThrow(() -> new NotFoundContentException("Catalog not found with id: " + bookDto.catalogId()));
 
-        Book book = new Book();
-        book.setName(bookDto.name());
-        book.setBody(bookDto.body());
-        book.setCatalog(catalog);
-
-        return saveBookWithCatchUniqueException(book).toString();
+        return saveBookWithCatchUniqueException(new Book(bookDto, catalog)).toString();
     }
 
     @Override
@@ -49,7 +44,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public String findByName(String bookName) {
+    public String findByBookName(String bookName) {
         return bookRepository.findByName(bookName)
                 .orElseThrow(()-> new NotFoundContentException("Not found book by name <" + bookName + ">"))
                 .toString();

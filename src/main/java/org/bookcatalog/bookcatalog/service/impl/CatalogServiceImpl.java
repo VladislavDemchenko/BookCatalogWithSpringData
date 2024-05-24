@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -35,7 +34,7 @@ public class CatalogServiceImpl implements CatalogService {
         return "Catalog with id - " + id + " safely removed";
     }
     @Override
-    public String findByName(String catalogName) {
+    public String findByCatalogName(String catalogName) {
         return catalogRepository.findByCatalogName(catalogName)
                 .orElseThrow(()-> new NotFoundContentException("Not found catalog by name <" + catalogName + ">"))
                 .toString();

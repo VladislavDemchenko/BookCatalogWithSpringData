@@ -5,10 +5,6 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.bookcatalog.bookcatalog.dto.CatalogDto;
-import org.hibernate.validator.constraints.UniqueElements;
-
-import java.text.DateFormat;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;

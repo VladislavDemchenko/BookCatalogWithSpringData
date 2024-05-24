@@ -1,10 +1,11 @@
 package org.bookcatalog.bookcatalog.controller;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.bookcatalog.bookcatalog.entity.Note;
-import org.bookcatalog.bookcatalog.repository.NoteRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.bookcatalog.bookcatalog.dto.NoteDto;
+import org.bookcatalog.bookcatalog.service.NoteService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -14,35 +15,34 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class NoteController {
 
-    private final NoteRepository noteRepository;
-
-    @PostMapping("/addNote")
-    public Note addNote(@RequestBody @Valid Note note){
-        return noteRepository.save(note);
+    private final NoteService noteService;
+    @PostMapping("/create")
+    public ResponseEntity<?> addNote(@RequestBody @Valid NoteDto noteDto, BindingResult bindingResult){
+        return new ResponseEntity<>(noteService.save(noteDto, bindingResult), HttpStatus.CREATED);
     }
-//
-//    @DeleteMapping("/deleteNote/{id}")
-//    public ResponseEntity<?> delete(@PathVariable Long id){
-//        return noteService.delete(id, Note.class);
-//    }
-//
-//    @PutMapping("/updateNote/{id}")
-//    public ResponseEntity<?> change(@PathVariable Long id, @RequestParam String descriptionName){
-//        return noteService.updateName(id, descriptionName,new FieldDto<String>("name"), Note.class);
-//    }
-//
-//    @GetMapping("/getNote/{id}")
-//    public ResponseEntity<?> getNote(@PathVariable Long id){
-//        return noteService.findById(id, Note.class);
-//    }
-//
-//    @GetMapping("/getAllNote")
-//    public ResponseEntity<?> getAllNote(){
-//        return noteService.findAll(Note.class);
-//    }
-//
-//    @Autowired
-//    public NoteController(NoteService noteService) {
-//        this.noteService = noteService;
-//    }
+
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> delete(@PathVariable Long id){
+        return new ResponseEntity<>(noteService.delete(id), HttpStatus.OK);
+    }
+
+
+    @GetMapping("/findByBody")
+    public ResponseEntity<?> findByBody(@RequestParam String body){
+        return new ResponseEntity<>(noteService.findByBody(body), HttpStatus.OK);
+    }
+
+
+    @GetMapping("/findAll")
+    public ResponseEntity<?> getAllNotes(){
+        return new ResponseEntity<>(noteService.findAll(), HttpStatus.OK);
+    }
+
+
+    @PutMapping("/updateBody/{id}")
+    public ResponseEntity<?> updateBody(@PathVariable Long id, @RequestParam String body){
+        return new ResponseEntity<>(noteService.updateNoteBody(id, body), HttpStatus.OK);
+    }
+
 }

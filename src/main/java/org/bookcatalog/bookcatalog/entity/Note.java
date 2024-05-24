@@ -1,18 +1,19 @@
 package org.bookcatalog.bookcatalog.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.bookcatalog.bookcatalog.dto.NoteDto;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
 @Table(name = "notes")
 @Setter
 @Getter
-@ToString
+@ToString(exclude = "book")
 @NoArgsConstructor
 public class Note {
 
@@ -21,7 +22,8 @@ public class Note {
     @SequenceGenerator(name = "note", sequenceName = "note_seq", allocationSize = 1)
     private Long id;
 
-    @Column(nullable = false)
+    @NotNull
+    @NotEmpty
     private String body;
 
     private Date creationDate;
@@ -36,4 +38,8 @@ public class Note {
         creationDate = new Date();
     }
 
+    public Note(NoteDto noteDto, Book book) {
+        this.body = noteDto.body();
+        this.book = book;
+    }
 }

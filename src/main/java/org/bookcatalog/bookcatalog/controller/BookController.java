@@ -1,10 +1,9 @@
 package org.bookcatalog.bookcatalog.controller;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.bookcatalog.bookcatalog.dto.BookDto;
-import org.bookcatalog.bookcatalog.entity.Book;
-import org.bookcatalog.bookcatalog.repository.BookRepository;
 import org.bookcatalog.bookcatalog.service.BookService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 public class BookController {
 
     private final BookService bookService;
-
     @PostMapping("/create")
     public ResponseEntity<?> addBook(@RequestBody @Valid BookDto bookDto, BindingResult bindingResult){
         return new ResponseEntity<>(bookService.save(bookDto, bindingResult), HttpStatus.CREATED);
@@ -31,8 +29,8 @@ public class BookController {
 
 
     @GetMapping("/findByName")
-    public ResponseEntity<?> findById(@RequestParam String bookName){
-        return new ResponseEntity<>(bookService.findByName(bookName), HttpStatus.OK);
+    public ResponseEntity<?> findByName(@RequestParam String bookName){
+        return new ResponseEntity<>(bookService.findByBookName(bookName), HttpStatus.OK);
     }
 
 

@@ -1,5 +1,6 @@
 package org.bookcatalog.bookcatalog.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.bookcatalog.bookcatalog.dto.BookDto;
@@ -7,7 +8,6 @@ import org.bookcatalog.bookcatalog.dto.BookDto;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 
 @Entity
@@ -35,6 +35,7 @@ public class Book {
     @JoinColumn(name = "catalog_fk")
     private Catalog catalog;
 
+    @JsonIgnore
     @Setter(AccessLevel.PRIVATE)
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
     private List<Note> notes = new ArrayList<>(); // user note for current book
