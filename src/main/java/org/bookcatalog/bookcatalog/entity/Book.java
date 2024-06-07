@@ -14,7 +14,7 @@ import java.util.List;
 @Table(name = "books")
 @Setter
 @Getter
-@ToString(exclude = "catalog")
+@ToString(exclude = "notes")
 @NoArgsConstructor
 @EqualsAndHashCode
 public class Book {

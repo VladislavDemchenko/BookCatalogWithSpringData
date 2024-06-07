@@ -9,24 +9,32 @@ import org.bookcatalog.bookcatalog.repository.CatalogRepository;
 import org.bookcatalog.bookcatalog.service.CatalogService;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 
 import java.util.List;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class CatalogServiceImpl implements CatalogService {
 
     private final CatalogRepository catalogRepository;
 
     @Override
+    @Transactional(readOnly = false)
     public String save(CatalogDto catalogDto, BindingResult bindingResult){
         if (bindingResult.hasErrors()) {
             throw new InvalidRequestException(bindingResult.getAllErrors().toString());
         }
-        return saveCatalogWithCatchUniqueException(new Catalog(catalogDto)).toString();
+        try{
+            return catalogRepository.save(new Catalog(catalogDto)).toString();
+        }catch(DataIntegrityViolationException e){
+            throw new InvalidRequestException("A catalog with this name already exist");
+        }
     }
     @Override
+    @Transactional(readOnly = false)
     public String delete(Long id){
         catalogRepository.findById(id)
                 .ifPresentOrElse(catalogRepository::delete,

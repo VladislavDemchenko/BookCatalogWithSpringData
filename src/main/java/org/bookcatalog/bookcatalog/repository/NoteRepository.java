@@ -7,8 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-@Repository
-@Transactional
 public interface NoteRepository extends JpaRepository<Note, Long> {
     Optional<Note> findByBody(String body);
 }

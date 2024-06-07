@@ -13,7 +13,7 @@ import java.util.List;
 @Table(name = "catalogs")
 @Setter
 @Getter
-@ToString(exclude = "book")
+@ToString(exclude = "books")
 @NoArgsConstructor
 @EqualsAndHashCode
 public class Catalog {
