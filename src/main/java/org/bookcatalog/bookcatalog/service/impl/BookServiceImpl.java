@@ -11,12 +11,14 @@ import org.bookcatalog.bookcatalog.repository.CatalogRepository;
 import org.bookcatalog.bookcatalog.service.BookService;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class BookServiceImpl implements BookService {
 
 
@@ -24,6 +26,7 @@ public class BookServiceImpl implements BookService {
     private final CatalogRepository catalogRepository;
 
     @Override
+    @Transactional(readOnly = false)
     public String save(BookDto bookDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             throw new InvalidRequestException(bindingResult.getAllErrors().toString());
@@ -32,10 +35,15 @@ public class BookServiceImpl implements BookService {
         Catalog catalog = catalogRepository.findById(bookDto.catalogId())
                 .orElseThrow(() -> new NotFoundContentException("Catalog not found with id: " + bookDto.catalogId()));
 
-        return saveBookWithCatchUniqueException(new Book(bookDto, catalog)).toString();
+        try {
+            return bookRepository.save(new Book(bookDto, catalog)).toString();
+        }catch(DataIntegrityViolationException e){
+            throw new InvalidRequestException("A book with this name already exist");
+        }
     }
 
     @Override
+    @Transactional // default readOnly false
     public String delete(Long id) {
         bookRepository.findById(id)
                 .ifPresentOrElse(bookRepository::delete,
@@ -60,6 +68,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    @Transactional
     public String updateBookName(Long id, String bookName) {
 
         Book book = bookRepository.findById(id)
@@ -68,16 +77,15 @@ public class BookServiceImpl implements BookService {
         if (bookName.isEmpty()) {
             throw new InvalidRequestException("New name of book can't be empty");
         }
-
         book.setName(bookName);
-        return saveBookWithCatchUniqueException(book).toString();
+        return book.toString();
     }
 
     @Override
+    @Transactional
     public String updateBookBody(Long id, String body) {
         bookRepository.findById(id).ifPresentOrElse(book -> {
             book.setBody(body);
-            bookRepository.save(book);
         },
         () -> { throw new NotFoundContentException("Book with id " + id + " hasn't been created"); });
         return "Updated";

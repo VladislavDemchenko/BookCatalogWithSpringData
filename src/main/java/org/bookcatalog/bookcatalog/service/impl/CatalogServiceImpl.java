@@ -22,7 +22,7 @@ public class CatalogServiceImpl implements CatalogService {
     private final CatalogRepository catalogRepository;
 
     @Override
-    @Transactional(readOnly = false)
+    @Transactional // default readOnly false
     public String save(CatalogDto catalogDto, BindingResult bindingResult){
         if (bindingResult.hasErrors()) {
             throw new InvalidRequestException(bindingResult.getAllErrors().toString());
@@ -34,7 +34,7 @@ public class CatalogServiceImpl implements CatalogService {
         }
     }
     @Override
-    @Transactional(readOnly = false)
+    @Transactional // default readOnly false
     public String delete(Long id){
         catalogRepository.findById(id)
                 .ifPresentOrElse(catalogRepository::delete,
@@ -56,6 +56,7 @@ public class CatalogServiceImpl implements CatalogService {
         return catalogs.toString();
     }
     @Override
+    @Transactional // default readOnly false
     public String updateCatalogName(Long id, String catalogName) {
 
         Catalog catalog = catalogRepository.findById(id)
@@ -64,26 +65,19 @@ public class CatalogServiceImpl implements CatalogService {
         if (catalogName.isEmpty()) {
             throw new InvalidRequestException("New name of catalog can't be empty");
         }
-
         catalog.setCatalogName(catalogName);
-        return saveCatalogWithCatchUniqueException(catalog).toString();
+        return catalog.toString();
     }
 
     @Override
+    @Transactional // default readOnly false
     public String updateCatalogDescription(Long id, String descriptionName) {
         catalogRepository.findById(id).ifPresentOrElse(catalog -> {
             catalog.setDescription(descriptionName);
-            catalogRepository.save(catalog);
         },
         () -> { throw new NotFoundContentException("Not found catalog with id - " + id); });
-        return "Updated";
+        return "Updated on new description - " + descriptionName;
     }
 
-    private Catalog saveCatalogWithCatchUniqueException(Catalog catalog) {
-        try {
-            return catalogRepository.save(catalog);
-        }catch(DataIntegrityViolationException e){
-            throw new InvalidRequestException("A catalog with this name already exist");
-        }
-    }
+
 }

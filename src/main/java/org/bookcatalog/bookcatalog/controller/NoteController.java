@@ -7,6 +7,7 @@ import org.bookcatalog.bookcatalog.dto.NoteDto;
 import org.bookcatalog.bookcatalog.service.NoteService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,7 +40,7 @@ public class NoteController {
         return new ResponseEntity<>(noteService.findAll(), HttpStatus.OK);
     }
 
-
+    @Transactional
     @PutMapping("/updateBody/{id}")
     public ResponseEntity<?> updateBody(@PathVariable Long id, @RequestParam String body){
         return new ResponseEntity<>(noteService.updateNoteBody(id, body), HttpStatus.OK);

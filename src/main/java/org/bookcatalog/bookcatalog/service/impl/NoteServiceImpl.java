@@ -10,18 +10,21 @@ import org.bookcatalog.bookcatalog.repository.BookRepository;
 import org.bookcatalog.bookcatalog.repository.NoteRepository;
 import org.bookcatalog.bookcatalog.service.NoteService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class NoteServiceImpl implements NoteService {
 
     private final NoteRepository noteRepository;
 
     private final BookRepository bookRepository;
     @Override
+    @Transactional
     public String save(NoteDto noteDto, BindingResult bindingResult){
         if (bindingResult.hasErrors()) {
             throw new InvalidRequestException(bindingResult.getAllErrors().toString());
@@ -33,6 +36,7 @@ public class NoteServiceImpl implements NoteService {
         return noteRepository.save(new Note(noteDto, book)).toString();
     }
     @Override
+    @Transactional
     public String delete(Long id){
         noteRepository.findById(id)
                 .ifPresentOrElse(noteRepository::delete,
@@ -41,6 +45,13 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
+    public String findByBody(String body){
+        return noteRepository.findByBody(body).stream()
+                .map(list -> list.orElseThrow(() -> new NotFoundContentException("Not found note")))
+                .toList()
+                .toString();
+    }
+    @Override
     public String findAll() {
         List<Note> note = noteRepository.findAll();
         if(note.isEmpty()){
@@ -48,18 +59,12 @@ public class NoteServiceImpl implements NoteService {
         }
         return note.toString();
     }
-    @Override
-    public String findByBody(String body){
-        return noteRepository.findByBody(body)
-                .orElseThrow(()-> new NotFoundContentException("Not found note"))
-                .toString();
-    }
 
     @Override
+    @Transactional
     public String updateNoteBody(Long id, String body) {
         noteRepository.findById(id).ifPresentOrElse(note -> {
                     note.setBody(body);
-                    noteRepository.save(note);
                 },
                 () -> { throw new NotFoundContentException("Not found note with id - " + id); });
         return "Updated";
