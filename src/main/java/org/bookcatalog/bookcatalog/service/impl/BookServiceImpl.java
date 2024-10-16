@@ -26,7 +26,7 @@ public class BookServiceImpl implements BookService {
     private final CatalogRepository catalogRepository;
 
     @Override
-    @Transactional(readOnly = false)
+    @Transactional// default readOnly false
     public String save(BookDto bookDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             throw new InvalidRequestException(bindingResult.getAllErrors().toString());
