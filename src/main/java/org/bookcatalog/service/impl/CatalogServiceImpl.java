@@ -27,11 +27,8 @@ public class CatalogServiceImpl implements CatalogService {
         if (bindingResult.hasErrors()) {
             throw new InvalidRequestException(bindingResult.getAllErrors().toString());
         }
-        try{
-            return catalogRepository.save(new Catalog(catalogDto)).toString();
-        }catch(DataIntegrityViolationException e){
-            throw new InvalidRequestException("A catalog with this name already exist");
-        }
+        return catalogRepository.save(new Catalog(catalogDto)).toString();
+
     }
     @Override
     @Transactional // default readOnly false
@@ -58,7 +55,6 @@ public class CatalogServiceImpl implements CatalogService {
     @Override
     @Transactional // default readOnly false
     public String updateCatalogName(Long id, String catalogName) {
-
         Catalog catalog = catalogRepository.findById(id)
                 .orElseThrow(() -> new NotFoundContentException("Catalog with id " + id + " hasn't been created"));
 
@@ -79,5 +75,30 @@ public class CatalogServiceImpl implements CatalogService {
         return "Updated on new description - " + descriptionName;
     }
 
+    @Override
+    public String findByDescription(String description) {
+        List<Catalog> catalogs = catalogRepository.findByDescriptionContainingIgnoreCase(description);
+        if(catalogs.isEmpty()){
+            throw new NotFoundContentException("Not found catalogs with description containing <" + description + ">");
+        }
+        return catalogs.toString();
+    }
 
+    @Override
+    public String findByCatalogNameContaining(String catalogName) {
+        List<Catalog> catalogs = catalogRepository.findByCatalogNameContainingIgnoreCase(catalogName);
+        if(catalogs.isEmpty()){
+            throw new NotFoundContentException("Not found catalogs with name containing <" + catalogName + ">");
+        }
+        return catalogs.toString();
+    }
+
+    @Override
+    public String findByKeyword(String keyword) {
+        List<Catalog> catalogs = catalogRepository.findByCatalogNameOrDescriptionContainingIgnoreCase(keyword);
+        if(catalogs.isEmpty()){
+            throw new NotFoundContentException("Not found catalogs with name or description containing <" + keyword + ">");
+        }
+        return catalogs.toString();
+    }
 }

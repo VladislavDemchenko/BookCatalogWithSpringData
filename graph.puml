@@ -1,0 +1,67 @@
+@startuml
+interface service.CatalogService {
+~ String findByCatalogName(String)
+~ String updateCatalogName(Long,String)
+~ String updateCatalogDescription(Long,String)
+}
+
+interface service.GlobalService {
+~ String save(T,BindingResult)
+~ String delete(Long)
+~ String findAll()
+}
+
+interface service.NoteService {
+~ String findByBody(String)
+~ String updateNoteBody(Long,String)
+}
+
+class service.impl.BookServiceImpl {
+- BookRepository bookRepository
+- CatalogRepository catalogRepository
++ String save(BookDto,BindingResult)
++ String delete(Long)
++ String findByBookName(String)
++ String findAll()
++ String updateBookName(Long,String)
++ String updateBookBody(Long,String)
+}
+
+
+class service.impl.NoteServiceImpl {
+- NoteRepository noteRepository
+- BookRepository bookRepository
++ String save(NoteDto,BindingResult)
++ String delete(Long)
++ String findByBody(String)
++ String findAll()
++ String updateNoteBody(Long,String)
+}
+
+
+class service.impl.CatalogServiceImpl {
+- CatalogRepository catalogRepository
++ String save(CatalogDto,BindingResult)
++ String delete(Long)
++ String findByCatalogName(String)
++ String findAll()
++ String updateCatalogName(Long,String)
++ String updateCatalogDescription(Long,String)
+}
+
+
+interface service.BookService {
+~ String findByBookName(String)
+~ String updateBookName(Long,String)
+~ String updateBookBody(Long,String)
+}
+
+
+
+service.GlobalService <|-- service.CatalogService
+service.GlobalService <|-- service.NoteService
+service.BookService <|.. service.impl.BookServiceImpl
+service.NoteService <|.. service.impl.NoteServiceImpl
+service.CatalogService <|.. service.impl.CatalogServiceImpl
+service.GlobalService <|-- service.BookService
+@enduml

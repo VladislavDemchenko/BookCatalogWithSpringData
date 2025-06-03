@@ -33,6 +33,21 @@ public class CatalogController {
     public ResponseEntity<?> findByName(@RequestParam String catalogName){
         return new ResponseEntity<>(catalogService.findByCatalogName(catalogName), HttpStatus.OK);
     }
+    
+    @GetMapping("/search/byNameContaining")
+    public ResponseEntity<?> findByNameContaining(@RequestParam String catalogName){
+        return new ResponseEntity<>(catalogService.findByCatalogNameContaining(catalogName), HttpStatus.OK);
+    }
+    
+    @GetMapping("/search/byDescription")
+    public ResponseEntity<?> findByDescription(@RequestParam String description){
+        return new ResponseEntity<>(catalogService.findByDescription(description), HttpStatus.OK);
+    }
+    
+    @GetMapping("/search/byKeyword")
+    public ResponseEntity<?> findByKeyword(@RequestParam String keyword){
+        return new ResponseEntity<>(catalogService.findByKeyword(keyword), HttpStatus.OK);
+    }
 
     @GetMapping("/findAll")
     public ResponseEntity<?> findAll(){
